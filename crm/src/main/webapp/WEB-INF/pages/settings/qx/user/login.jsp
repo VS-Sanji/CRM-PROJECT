@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
 	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+"/";
 %>
@@ -86,14 +87,20 @@
 			<form action="workbench/index.html" class="form-horizontal" role="form">
 				<div class="form-group form-group-lg">
 					<div style="width: 350px;">
-						<input id="loginAct" class="form-control" type="text" placeholder="用户名">
+						<input id="loginAct" class="form-control" type="text" placeholder="用户名" value="${cookie.loginAct.value}">
 					</div>
 					<div style="width: 350px; position: relative;top: 20px;">
-						<input id="loginPwd" class="form-control" type="password" placeholder="密码">
+						<input id="loginPwd" class="form-control" type="password" placeholder="密码" value="${cookie.loginPwd.value}">
 					</div>
 					<div class="checkbox"  style="position: relative;top: 30px; left: 10px;">
 						<label>
-							<input id="isRemPwd" type="checkbox"> 十天内免登录
+							<c:if test="${not empty cookie.loginAct.value and not empty cookie.loginPwd.value}">
+								<input id="isRemPwd" type="checkbox" checked>
+							</c:if>
+							<c:if test="${empty cookie.loginAct.value or empty cookie.loginPwd.value}">
+								<input id="isRemPwd" type="checkbox">
+							</c:if>
+							十天内免登录
 						</label>
 						&nbsp;&nbsp;
 						<span id="msg"></span>
