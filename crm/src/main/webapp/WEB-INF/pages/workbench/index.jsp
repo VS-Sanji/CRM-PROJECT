@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
-String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+"/";
+	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getContextPath()+"/";
 %>
 <html>
 <head>
@@ -36,11 +36,17 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		});
 		
 		
-		window.open("main/index.html","workareaFrame");
-		
+		window.open("workbench/main/index.do","workareaFrame");
+
+		//给 安全退出的 确定按钮绑定鼠标单击事件
+		$("#logoutBtn").click(function (){
+			window.location.href = "settings/qx/user/logout.do"
+		})
 	});
 	
 </script>
+
+
 
 </head>
 <body>
@@ -129,7 +135,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="window.location.href='login.html';">确定</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="logoutBtn">确定</button>
 				</div>
 			</div>
 		</div>
@@ -162,7 +168,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		<div id="navigation" style="left: 0px; width: 18%; position: relative; height: 100%; overflow:auto;">
 		
 			<ul id="no1" class="nav nav-pills nav-stacked">
-				<li class="liClass"><a href="main/index.html" target="workareaFrame"><span class="glyphicon glyphicon-home"></span> 工作台</a></li>
+				<li class="liClass"><a href="workbench/main/index.do" target="workareaFrame"><span class="glyphicon glyphicon-home"></span> 工作台</a></li>
 				<li class="liClass"><a href="javascript:void(0);" target="workareaFrame"><span class="glyphicon glyphicon-tag"></span> 动态</a></li>
 				<li class="liClass"><a href="javascript:void(0);" target="workareaFrame"><span class="glyphicon glyphicon-time"></span> 审批</a></li>
 				<li class="liClass"><a href="javascript:void(0);" target="workareaFrame"><span class="glyphicon glyphicon-user"></span> 客户公海</a></li>

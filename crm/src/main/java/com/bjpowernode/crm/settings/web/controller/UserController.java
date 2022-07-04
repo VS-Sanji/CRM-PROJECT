@@ -42,7 +42,7 @@ public class UserController {
         ReturnObject retDataObject = new ReturnObject();
         if (user == null) {//判空
             //登录失败，用户名或密码错误
-            retDataObject.setCode("0");
+            retDataObject.setCode(Contants.RETURN_OBJECT_CODE_FAIL);
             retDataObject.setMessage("用户名或密码错误");
         }else{//进一步判断是否合法
             //根据需求，需要判断 账号是否过期，是否被锁定，是否ip受限
@@ -89,12 +89,29 @@ public class UserController {
                     c1.setMaxAge(0);
                     response.addCookie(c1);
                     Cookie c2 = new Cookie("loginPwd", "1");
-                    c1.setMaxAge(0);
+                    c2.setMaxAge(0);
                     response.addCookie(c2);
                 }
             }
         }
         return retDataObject;
 
+    }
+
+    @RequestMapping("/settings/qx/user/logout.do")
+    public String logout(HttpServletResponse response, HttpSession session){
+        //清空cookie
+        Cookie c1 = new Cookie("loginAct", "1");
+        c1.setMaxAge(0);
+        response.addCookie(c1);
+        Cookie c2 = new Cookie("loginPwd", "1");
+        c2.setMaxAge(0);
+        response.addCookie(c2);
+
+        //销毁session
+        session.invalidate();
+
+        //重定向 最终显示在浏览器地址栏上的，应该也是登录界面的url，转发的话显示的还是上一次请求的url，不符合要求
+        return "redirect:/";//借助springmvc来重定向，实际执行的还是response.sendRedirect("/crm/");
     }
 }
