@@ -19,13 +19,137 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript">
 
 	$(function(){
-		
-		
-		
+
+		/*给创建按钮添加单击事件*/
+		$("#createActivityBtn").click(function (){
+
+			/*使用js代码弹出模态窗口，可以在弹出之前做一些初始化工作*/
+			//再次打开，重置表单
+			$("#createActivityForm").get(0).reset();
+
+			/*弹出创建市场活动的模态窗口*/
+			$("#createActivityModal").modal("show");
+		})
+
+
+		//给保存按钮加单击事件
+		$("#saveCreateActivityBtn").click(function (){
+			//收集参数
+			var owner = $("#create-marketActivityOwner").val();
+			var name = $.trim($("#create-marketActivityName").val());
+			var startDate = $("#create-startTime").val();
+			var endDate = $("#create-endTime").val();
+			var cost = $.trim($("#create-cost").val());
+			var description = $.trim($("#create-describe"));
+
+			//表单验证
+			if (owner==""){
+				alert("所有者不能为空");
+				return;
+			}
+			if (name==""){
+				alert("名称不能为空")
+				return;
+			}
+			if (startDate!=""&&endDate!=""){
+				//js是弱类型语言，直接可用<,>,==,!=等来判断大小关系
+				//这里直接用字符串来比，比较每个字符
+				if (startDate>endDate){
+					alert("起始时间不能晚于结束时间")
+					return;
+				}
+			}
+
+			/*
+            正则表达式
+            1.语言，语法：定义字符串的匹配模式，可以用来判断指定的具体字符串是否符合匹配模式
+            2.语法通则：
+				1）//：在js中定义一个正则表达式 var regExp=/......./;
+				2)^:匹配字符串的开头位置
+            	  $:匹配字符串的结尾
+            	3）[]:匹配指定字符集中的一位字符。 var regExp=/^[abc]$/;
+            								  var regExp=/^[a-z0-9]$/;
+            	4){}：匹配次数。 var regExp=/^[abc]{5}$/;
+				  {m}:匹配m次
+		          {m，n}：匹配m次到n次
+				  {m，}：匹配m次或者更多次
+				5）特殊符号：
+					\d:匹配一位数字，相当于[0-9]
+					\D:匹配一位非数字
+					\w:匹配所有字符，包括字母，数字，下划线
+					\W：匹配非字符，除了字母，数字，下划线之外的字符
+
+					*：匹配0次或者多次，相当于{0，}
+					+：匹配一次或者多次，相当于{1，}
+					？：匹配0次或者1次，相当于{0，1}
+					*/
+
+			var  regExp = /^(([1-9]\d*)|0)$/;
+			if (!regExp.test(cost)){
+				alert("成本只能为未非负数");
+				return;
+			}
+
+			//发送请求
+			$.ajax({
+				url:'workbench/activity/saveCreateActivity.do',
+				data:{
+					owner:owner,
+					name:name,
+					startDate:startDate,
+					endDate:endDate,
+					cost:cost,
+					description:description
+				},
+				type:'post',
+				dataType:'json',
+				success:function (data){
+					if (data.code=="1"){
+						//关闭模态窗口
+						$("#createActivityModal").modal("hide");
+						//刷新市场活动列，显示第一页数据，保持每页显示条数不变（保留）
+
+					}else {
+						//提示信息
+						alert(data.message);
+						//模态窗口不关闭
+						$("#createActivityModal").modal("show");//可以不写
+					}
+				}
+			})
+		})
 	});
 	
 </script>
+
+	<script type="text/javascript">
+		//页面加载完再对容器调用函数
+		$(function (){
+			$(".mydate").datetimepicker({
+				language:'zh-CN',//语言
+				format:'yyyy-mm-dd',//格式，这个格式和java中有所差异，要按照插件要求的来
+				minView:'month',//最小视图，要想选到天则填写month，想选到时则选day，依此类推
+				initialDate:new Date(),//初始化显示的日期
+				autoclose:true//设置选择完日期或者时间后，是否自动关闭日历
+			})
+		})
+
+		(function($){
+			$.fn.datetimepicker.dates['zh-CN'] = {
+				days: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"],
+				daysShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六", "周日"],
+				daysMin:  ["日", "一", "二", "三", "四", "五", "六", "日"],
+				months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+				monthsShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+				today: "今天",
+				suffix: [],
+				meridiem: ["上午", "下午"]
+			};
+		}(jQuery));
+	</script>
 </head>
+
+
 <body>
 
 	<!-- 创建市场活动的模态窗口 -->
@@ -40,7 +164,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				</div>
 				<div class="modal-body">
 				
-					<form class="form-horizontal" role="form">
+					<form id="createActivityForm" class="form-horizontal" role="form">
 					
 						<div class="form-group">
 							<label for="create-marketActivityOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
@@ -60,11 +184,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						<div class="form-group">
 							<label for="create-startTime" class="col-sm-2 control-label">开始日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="create-startTime">
+								<input type="text" class="form-control mydate" id="create-startTime">
 							</div>
 							<label for="create-endTime" class="col-sm-2 control-label">结束日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="create-endTime">
+								<input type="text" class="form-control mydate" id="create-endTime">
 							</div>
 						</div>
                         <div class="form-group">
@@ -80,13 +204,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								<textarea class="form-control" rows="3" id="create-describe"></textarea>
 							</div>
 						</div>
-						
 					</form>
-					
 				</div>
+
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal">保存</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="saveCreateActivityBtn">保存</button>
 				</div>
 			</div>
 		</div>

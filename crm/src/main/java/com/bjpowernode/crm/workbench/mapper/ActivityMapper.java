@@ -2,6 +2,7 @@ package com.bjpowernode.crm.workbench.mapper;
 
 import com.bjpowernode.crm.workbench.domain.Activity;
 
+import java.rmi.activation.ActivationID;
 import java.util.List;
 import java.util.Map;
 
@@ -54,6 +55,11 @@ public interface ActivityMapper {
      */
     int updateByPrimaryKey(Activity record);
 
+
+    /**
+     * 保存创建的市场活动
+     */
+    int insertActivity(Activity activity);
 
     /**
      * 根据条件分页查询市场活动的列表

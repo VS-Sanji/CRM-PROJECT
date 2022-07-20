@@ -1,12 +1,21 @@
 package com.bjpowernode.crm.workbench.service;
 
+
+
 import com.bjpowernode.crm.workbench.domain.Activity;
-import org.springframework.stereotype.Service;
+
 
 import java.util.List;
 import java.util.Map;
 
 public interface ActivityService {
+
+    /**
+     * 保存创建的市场活动到数据库中
+     * @param activity
+     * @return
+     */
+    int saveCreateActivity(Activity activity);
 
     /**
      * 根据条件分页查询市场活动
