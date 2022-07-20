@@ -2,6 +2,7 @@ package com.bjpowernode.crm.workbench.web.controller;
 
 import com.bjpowernode.crm.settings.domain.User;
 import com.bjpowernode.crm.settings.service.UserService;
+import com.bjpowernode.crm.workbench.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,10 +16,15 @@ public class ActivityController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ActivityService activityService;
+
     @RequestMapping("/workbench/activity/index.do")
     public String index(HttpServletRequest request){
         List<User> userList = userService.queryAllUsers();
         request.setAttribute("userList",userList);
         return "workbench/activity/index";
     }
+
+
 }

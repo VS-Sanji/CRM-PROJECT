@@ -10,7 +10,8 @@
     <%--首先引入jquery库，因为这是最被依赖的,要保证被依赖程度高的首先引入--%>
     <script type="text/javascript" src="jquery/jquery-1.11.1-min.js"></script>
     <%--其次引入bootstrap框架，插件是依赖于bootstrap框架运行的--%>
-    <link ref="stylesheet" type="text/css" href="jquery/bootstrap_3.3.0/css/bootstrap.min.css"></link>
+    <link ref="stylesheet" type="text/css" href="jquery/bootstrap_3.3.0/css/bootstrap
+    .min.css"></link>
     <script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
     <%--datatimepicker插件--%>
     <link rel="stylesheet" type="text/css" href="jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css">

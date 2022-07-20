@@ -39,7 +39,7 @@ public class UserController {
         //调用service层进行查询
         User user = userService.queryUserByLoginActAndPwd(map);
         //根据查询结果生成响应信息
-        ReturnObject retDataObject = new ReturnObject();
+            ReturnObject retDataObject = new ReturnObject();
         if (user == null) {//判空
             //登录失败，用户名或密码错误
             retDataObject.setCode(Contants.RETURN_OBJECT_CODE_FAIL);

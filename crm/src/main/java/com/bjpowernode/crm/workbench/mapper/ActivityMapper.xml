@@ -201,4 +201,53 @@
       edit_by = #{editBy,jdbcType=VARCHAR}
     where id = #{id,jdbcType=CHAR}
   </update>
+
+
+  <!--根据条件分页查询市场活动的列表-->
+  <select id="selectActivityByConditionForPage" parameterType="map" resultMap="BaseResultMap">
+    select a.id, u1.name as owner, a.name, a.start_date, a.end_date, a.cost, a.create_time, a.description
+    from tbl_activity a
+    join tbl_user u1 on a.owner = u1.id
+    join tbl_user u2 on a.create_by = u2.id
+    left join tbl_user u3 on a.edit_by = u3.id
+    <where>
+      <if test="name!=null and name!=''">
+        and a.name like '%' #{name} '%'
+      </if>
+      <if test="owner!=null and owner!=''">
+        and u1.name like '%' #{owner} '%'
+      </if>
+      <if test="start_date!=null and start_date!=''">
+        and a.start_date >= #{start_date}
+      </if>
+      <if test="end_date!=null and end_date!=''">
+        and a.end_date &lt;= #{end_date}
+      </if>
+    </where>
+    order by a.create_time desc
+    limit #{beginNo},#{pageSize}
+  </select>
+
+  <!--根据条件查询市场活动记录总条数-->
+  <select id="selectCountOfActivityByCondition" parameterType="map" resultType="int">
+    select count(*)
+    from tbl_activity a
+    join tbl_user u1 on a.owner = u1.id
+    join tbl_user u2 on a.create_by = u2.id
+    left join tbl_user u3 on a.edit_by = u3.id
+    <where>
+      <if test="name!=null and name!=''">
+        and a.name like '%' #{name} '%'
+      </if>
+      <if test="owner!=null and owner!=''">
+        and u1.name like '%' #{owner} '%'
+      </if>
+      <if test="start_date!=null and start_date!=''">
+        and a.start_date >= #{start_date}
+      </if>
+      <if test="end_date!=null and end_date!=''">
+        and a.end_date &lt;= #{end_date}
+      </if>
+    </where>
+  </select>
 </mapper>
