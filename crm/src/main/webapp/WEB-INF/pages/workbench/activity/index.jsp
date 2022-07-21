@@ -16,13 +16,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
 
-	<%--引入pagination分页插件--%>
-	<script type="text/javascript" src="jquery/bs_pagination-master/js/jquery.bs_pagination.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="jquery/bs_pagination-master/css/jquery.bs_pagination.min.css">
-	<script type="text/javascript" src="jquery/bs_pagination-master/localization/en.min.js"></script>
+<%--引入pagination分页插件--%>
+<script type="text/javascript" src="jquery/bs_pagination-master/js/jquery.bs_pagination.min.js"></script>
+<link rel="stylesheet" type="text/css" href="jquery/bs_pagination-master/css/jquery.bs_pagination.min.css">
+<script type="text/javascript" src="jquery/bs_pagination-master/localization/en.min.js"></script>
 
 <script type="text/javascript">
-
 	$(function(){
 
 		/*给创建按钮添加单击事件*/
@@ -127,12 +126,17 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		//打开市场活动页面即查一次数据,按需求给定初始参数
 		queryActivityByConditionForPage(1,10);
 
-		//输入条件后，点击查询按钮，查询数据
+		//输入条件后，点击查询按钮，查询符合条件的第一页的数据及总条数
 		$("#queryActivityBtn").click(function(){
-			queryActivityByConditionForPage();
+			queryActivityByConditionForPage(1,10);
 		})
 
 
+		/**
+		 * 封装成一个函数
+		 * @param pageNo 用户选择的页号
+		 * @param pageSize 每页显示条数
+		 */
 		function queryActivityByConditionForPage(pageNo,pageSize){
 			//当市场活动主页面加载完成，查询所有数据的第一页以及所有数据的总条数，默认每页显示10条
 			/*获取参数，发送异步请求，实现整个页面刷新完成即查出市场活动*/
@@ -157,7 +161,57 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				dataType:'json',
 				success:function (data){
 					//显示总条数
-					$("#totalCountB").text(data.totalCount);
+					//$("#totalCountB").text(data.totalCount); 不用自己写了，插件中有
+
+					//在此调用插件，因为此时已经成功的从后台获取到市场活动数据信息了，在其它位置不合适，不方便拿到后台返回的数据
+					//拿到容器对象，调用bs_pagination()方法
+					//计算总页数,使用js系统函数取整,parseInt(),获取小数的整数部分
+					var totalPagesNum = parseInt(data.totalCount / pageSize);
+					$("#pagination").bs_pagination({
+						currentPage:pageNo,  //当前页号，相当于之前用的pageNo，用户选的
+
+						//这三个数据必须保持数学关系统一
+						rowsPerPage:pageSize, //每页显示条数，相当于pageSize，用户选的
+						totalPages:totalPagesNum, //总页数，必填参数，计算出来的
+						totalRows:data.totalCount, //总条数，数据库中查出来的
+
+						visiblePageLinks:5, //最多可以显示的卡片数
+						showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true
+						showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true
+						showRowsInfo:false,  //是否显示记录的信息，默认是true
+
+						//可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize
+						//event:切换事件本身,用的不多
+						//pageObj:换页之后的翻页对象，封装了换页后的信息，包括pageNo，pageSize，、、、等等信息
+						/*
+						pageObj对象，各种信息
+						{
+						currentPage:1,  //当前页号，相当于之前用的pageNo，用户选的
+
+						//这三个数据必须保持数学关系统一
+						rowsPerPage:10, //每页显示条数，相当于pageSize，用户选的
+						totalPages:100, //总页数，必填参数，计算出来的
+						totalRows:1000, //总条数，数据库中查出来的
+
+						visiblePageLinks:5, //最多可以显示的卡片数
+						showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true
+						showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true
+						showRowsInfo:false,  //是否显示记录的信息，默认是true
+
+						//可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize
+						//event:切换事件本身,用的不多
+						//pageObj:翻页对象，即封装了各种翻页信息的对象，其中有pageNo，pageSize，、、、等等信息
+						onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
+							//js代码
+							alert("zhanhuinimasile")
+						}
+					}
+						 */
+						onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
+							//js代码
+							queryActivityByConditionForPage(pageObj.pageNo,pageObj.pageSize);
+						}
+					});
 
 					//显示第一页的市场活动信息
 					//遍历数据，拼接字符串，将字符串放到tbody中
@@ -182,82 +236,83 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	});
 </script>
 
-
+<%--日历--%>
 <script type="text/javascript">
-		//页面加载完再对容器调用函数
-		$(function (){
-			$(".mydate").datetimepicker({
-				language:'zh-CN',//语言
-				format:'yyyy-mm-dd',//格式，这个格式和java中有所差异，要按照插件要求的来
-				minView:'month',//最小视图，要想选到天则填写month，想选到时则选day，依此类推
-				initialDate:new Date(),//初始化显示的日期
-				autoclose:true//设置选择完日期或者时间后，是否自动关闭日历
-			})
+	//页面加载完再对容器调用函数
+	$(function (){
+		$(".mydate").datetimepicker({
+			language:'zh-CN',//语言
+			format:'yyyy-mm-dd',//格式，这个格式和java中有所差异，要按照插件要求的来
+			minView:'month',//最小视图，要想选到天则填写month，想选到时则选day，依此类推
+			initialDate:new Date(),//初始化显示的日期
+			autoclose:true//设置选择完日期或者时间后，是否自动关闭日历
 		})
+	})
 
-		(function($){
-			$.fn.datetimepicker.dates['zh-CN'] = {
-				days: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"],
-				daysShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六", "周日"],
-				daysMin:  ["日", "一", "二", "三", "四", "五", "六", "日"],
-				months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
-				monthsShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
-				today: "今天",
-				suffix: [],
-				meridiem: ["上午", "下午"]
-			};
-		}(jQuery));
-	</script>
+	(function($){
+		$.fn.datetimepicker.dates['zh-CN'] = {
+			days: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"],
+			daysShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六", "周日"],
+			daysMin:  ["日", "一", "二", "三", "四", "五", "六", "日"],
+			months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+			monthsShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+			today: "今天",
+			suffix: [],
+			meridiem: ["上午", "下午"]
+		};
+	}(jQuery));
+</script>
 
-	<script type="text/javascript">
-		$(function (){
-			$("#page").bs_pagination({
-				currentPage:1,  //当前页号，相当于之前用的pageNo，用户选的
+<%--分页--%>
+<script type="text/javascript">
+	$(function (){
+		$("#page").bs_pagination({
+			currentPage:1,  //当前页号，相当于之前用的pageNo，用户选的
 
-				//这三个数据必须保持数学关系统一
-				rowsPerPage:10, //每页显示条数，相当于pageSize，用户选的
-				totalPages:100, //总页数，必填参数，计算出来的
-				totalRows:1000, //总条数，数据库中查出来的
+			//这三个数据必须保持数学关系统一
+			rowsPerPage:10, //每页显示条数，相当于pageSize，用户选的
+			totalPages:100, //总页数，必填参数，计算出来的
+			totalRows:1000, //总条数，数据库中查出来的
 
-				visiblePageLinks:5, //最多可以显示的卡片数
-				showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true
-				showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true
-				showRowsInfo:false,  //是否显示记录的信息，默认是true
+			visiblePageLinks:5, //最多可以显示的卡片数
+			showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true
+			showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true
+			showRowsInfo:false,  //是否显示记录的信息，默认是true
 
-				//可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize
-				//event:切换事件本身,用的不多
-				//pageObj:翻页对象，即封装了各种翻页信息的对象，其中有pageNo，pageSize，、、、等等信息
-				/*
-                pageObj对象，各种信息
-                {
-                currentPage:1,  //当前页号，相当于之前用的pageNo，用户选的
+			//可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize
+			//event:切换事件本身,用的不多
+			//pageObj:翻页对象，即封装了各种翻页信息的对象，其中有pageNo，pageSize，、、、等等信息
+			/*
+			pageObj对象，各种信息
+			{
+			currentPage:1,  //当前页号，相当于之前用的pageNo，用户选的
 
-                //这三个数据必须保持数学关系统一
-                rowsPerPage:10, //每页显示条数，相当于pageSize，用户选的
-                totalPages:100, //总页数，必填参数，计算出来的
-                totalRows:1000, //总条数，数据库中查出来的
+			//这三个数据必须保持数学关系统一
+			rowsPerPage:10, //每页显示条数，相当于pageSize，用户选的
+			totalPages:100, //总页数，必填参数，计算出来的
+			totalRows:1000, //总条数，数据库中查出来的
 
-                visiblePageLinks:5, //最多可以显示的卡片数
-                showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true
-                showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true
-                showRowsInfo:false,  //是否显示记录的信息，默认是true
+			visiblePageLinks:5, //最多可以显示的卡片数
+			showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true
+			showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true
+			showRowsInfo:false,  //是否显示记录的信息，默认是true
 
-                //可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize
-                //event:切换事件本身,用的不多
-                //pageObj:翻页对象，即封装了各种翻页信息的对象，其中有pageNo，pageSize，、、、等等信息
-                onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
-                    //js代码
-                    alert("zhanhuinimasile")
-                }
-            }
-                 */
-				onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
-					//js代码
-					alert("zhanhuinimasile")
-				}
-			});
+			//可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize
+			//event:切换事件本身,用的不多
+			//pageObj:翻页对象，即封装了各种翻页信息的对象，其中有pageNo，pageSize，、、、等等信息
+			onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
+				//js代码
+				alert("zhanhuinimasile")
+			}
+		}
+			 */
+			onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
+				//js代码
+				alert("zhanhuinimasile")
+			}
 		});
-	</script>
+	});
+</script>
 
 </head>
 
