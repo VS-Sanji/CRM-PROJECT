@@ -16,6 +16,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
 
+	<%--引入pagination分页插件--%>
+	<script type="text/javascript" src="jquery/bs_pagination-master/js/jquery.bs_pagination.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="jquery/bs_pagination-master/css/jquery.bs_pagination.min.css">
+	<script type="text/javascript" src="jquery/bs_pagination-master/localization/en.min.js"></script>
+
 <script type="text/javascript">
 
 	$(function(){
@@ -118,11 +123,67 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				}
 			})
 		})
+
+		//打开市场活动页面即查一次数据,按需求给定初始参数
+		queryActivityByConditionForPage(1,10);
+
+		//输入条件后，点击查询按钮，查询数据
+		$("#queryActivityBtn").click(function(){
+			queryActivityByConditionForPage();
+		})
+
+
+		function queryActivityByConditionForPage(pageNo,pageSize){
+			//当市场活动主页面加载完成，查询所有数据的第一页以及所有数据的总条数，默认每页显示10条
+			/*获取参数，发送异步请求，实现整个页面刷新完成即查出市场活动*/
+			var name = $("#query-name").val();
+			var owner = $("#query-owner").val();
+			var startDate = $("#query-startDate").val();
+			var endDate = $("#query-endDate").val();
+/*			var pageNo = 1;
+			var pageSize = 10;*/
+			//发请求
+			$.ajax({
+				url:'workbench/activity/queryActivityByConditionForPage.do',
+				data:{
+					name:name,
+					owner:owner,
+					startDate:startDate,
+					endDate:endDate,
+					pageNo:pageNo,
+					pageSize:pageSize
+				},
+				type:'post',
+				dataType:'json',
+				success:function (data){
+					//显示总条数
+					$("#totalCountB").text(data.totalCount);
+
+					//显示第一页的市场活动信息
+					//遍历数据，拼接字符串，将字符串放到tbody中
+					//定义空字符串
+					var htmlStr = "";
+					$.each(data.retList,function (index,obj){
+						htmlStr += "<tr class=\"active\">"
+						htmlStr += "<td><input type=\"checkbox\" value='"+obj.id+"'/></td>"
+						htmlStr += "<td><a style=\"text-decoration: none; cursor: pointer;\" onclick=\"window.location.href='detail.html';\">"+obj.name+"</a></td>"
+						htmlStr += "<td>"+obj.owner+"</td>"
+						htmlStr += "<td>"+obj.startDate+"</td>"
+						htmlStr += "<td>"+obj.endDate+"</td>"
+								</tr>
+					})
+
+					$("#activityBody").html(htmlStr);
+				}
+
+			})
+		}
+
 	});
-	
 </script>
 
-	<script type="text/javascript">
+
+<script type="text/javascript">
 		//页面加载完再对容器调用函数
 		$(function (){
 			$(".mydate").datetimepicker({
@@ -147,6 +208,57 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			};
 		}(jQuery));
 	</script>
+
+	<script type="text/javascript">
+		$(function (){
+			$("#page").bs_pagination({
+				currentPage:1,  //当前页号，相当于之前用的pageNo，用户选的
+
+				//这三个数据必须保持数学关系统一
+				rowsPerPage:10, //每页显示条数，相当于pageSize，用户选的
+				totalPages:100, //总页数，必填参数，计算出来的
+				totalRows:1000, //总条数，数据库中查出来的
+
+				visiblePageLinks:5, //最多可以显示的卡片数
+				showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true
+				showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true
+				showRowsInfo:false,  //是否显示记录的信息，默认是true
+
+				//可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize
+				//event:切换事件本身,用的不多
+				//pageObj:翻页对象，即封装了各种翻页信息的对象，其中有pageNo，pageSize，、、、等等信息
+				/*
+                pageObj对象，各种信息
+                {
+                currentPage:1,  //当前页号，相当于之前用的pageNo，用户选的
+
+                //这三个数据必须保持数学关系统一
+                rowsPerPage:10, //每页显示条数，相当于pageSize，用户选的
+                totalPages:100, //总页数，必填参数，计算出来的
+                totalRows:1000, //总条数，数据库中查出来的
+
+                visiblePageLinks:5, //最多可以显示的卡片数
+                showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true
+                showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true
+                showRowsInfo:false,  //是否显示记录的信息，默认是true
+
+                //可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize
+                //event:切换事件本身,用的不多
+                //pageObj:翻页对象，即封装了各种翻页信息的对象，其中有pageNo，pageSize，、、、等等信息
+                onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
+                    //js代码
+                    alert("zhanhuinimasile")
+                }
+            }
+                 */
+				onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
+					//js代码
+					alert("zhanhuinimasile")
+				}
+			});
+		});
+	</script>
+
 </head>
 
 
@@ -335,14 +447,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">名称</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="query-name">
 				    </div>
 				  </div>
 				  
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">所有者</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="query-owner">
 				    </div>
 				  </div>
 
@@ -350,17 +462,17 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">开始日期</div>
-					  <input class="form-control" type="text" id="startTime" />
+					  <input class="form-control" type="text" id="query-startDate" />
 				    </div>
 				  </div>
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">结束日期</div>
-					  <input class="form-control" type="text" id="endTime">
+					  <input class="form-control" type="text" id="query-endDate">
 				    </div>
 				  </div>
 				  
-				  <button type="submit" class="btn btn-default">查询</button>
+				  <button type="submit" class="btn btn-default" id="queryActivityBtn">查询</button>
 				  
 				</form>
 			</div>
@@ -387,28 +499,31 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<td>结束日期</td>
 						</tr>
 					</thead>
-					<tbody>
-						<tr class="active">
-							<td><input type="checkbox" /></td>
-							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>
-                            <td>zhangsan</td>
-							<td>2020-10-10</td>
-							<td>2020-10-20</td>
-						</tr>
-                        <tr class="active">
-                            <td><input type="checkbox" /></td>
-                            <td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>
-                            <td>zhangsan</td>
-                            <td>2020-10-10</td>
-                            <td>2020-10-20</td>
+					<tbody id="activityBody">
+<%--						<tr class="active">--%>
+<%--							<td><input type="checkbox" /></td>--%>
+<%--							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>--%>
+<%--                            <td>zhangsan</td>--%>
+<%--							<td>2020-10-10</td>--%>
+<%--							<td>2020-10-20</td>--%>
+<%--						</tr>--%>
+<%--                        <tr class="active">--%>
+<%--                            <td><input type="checkbox" /></td>--%>
+<%--                            <td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>--%>
+<%--                            <td>zhangsan</td>--%>
+<%--                            <td>2020-10-10</td>--%>
+<%--                            <td>2020-10-20</td>--%>
                         </tr>
 					</tbody>
 				</table>
+				<%--创建分页插件的容器--%>
+				<div id="pagination"></div>
+
 			</div>
 			
-			<div style="height: 50px; position: relative;top: 30px;">
+<%--			<div style="height: 50px; position: relative;top: 30px;">
 				<div>
-					<button type="button" class="btn btn-default" style="cursor: default;">共<b>50</b>条记录</button>
+					<button type="button" class="btn btn-default" style="cursor: default;" id="totalCountB">共<b>50</b>条记录</button>
 				</div>
 				<div class="btn-group" style="position: relative;top: -34px; left: 110px;">
 					<button type="button" class="btn btn-default" style="cursor: default;">显示</button>
@@ -439,7 +554,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						</ul>
 					</nav>
 				</div>
-			</div>
+			</div>--%>
 			
 		</div>
 		

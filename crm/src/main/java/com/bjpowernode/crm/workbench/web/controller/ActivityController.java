@@ -8,6 +8,7 @@ import com.bjpowernode.crm.settings.domain.User;
 import com.bjpowernode.crm.settings.service.UserService;
 import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.service.ActivityService;
+import com.sun.corba.se.impl.oa.toa.TOA;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class ActivityController {
@@ -70,6 +73,33 @@ public class ActivityController {
         return returnObject;
     }
 
+    @RequestMapping("/workbench/activity/queryActivityByConditionForPage.do")
+    @ResponseBody
+    public Object queryActivityByConditionForPage(String name, String owner, String startDate, String endDate,
+                                                  int pageNo, int pageSize){
+        //封装参数
+        Map<String, Object> map1 = new HashMap<>();
+        map1.put("name",name);
+        map1.put("owner",owner);
+        map1.put("startDate",startDate);
+        map1.put("endDate",endDate);
 
+        //封装参数
+        Map<String, Object> map2 = new HashMap<>();
+        map2.put("beginNo",(pageNo - 1)*pageSize);
+        map2.put("pageSize",pageSize);
+
+        //调用service查询数据库
+        List<Activity> retList = activityService.queryActivityByConditionForPage(map1);
+        int totalCount = activityService.queryCountOfActivityByCondition(map2);
+
+        //封装查询结果
+        Map<String, Object> retMap = new HashMap<>();
+        retMap.put("retList",retList);
+        retMap.put("totalCount", totalCount);
+
+        //返回结果
+        return retMap;
+    }
 
 }
