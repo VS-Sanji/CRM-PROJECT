@@ -78,20 +78,17 @@ public class ActivityController {
     public Object queryActivityByConditionForPage(String name, String owner, String startDate, String endDate,
                                                   int pageNo, int pageSize){
         //封装参数
-        Map<String, Object> map1 = new HashMap<>();
-        map1.put("name",name);
-        map1.put("owner",owner);
-        map1.put("startDate",startDate);
-        map1.put("endDate",endDate);
-
-        //封装参数
-        Map<String, Object> map2 = new HashMap<>();
-        map2.put("beginNo",(pageNo - 1)*pageSize);
-        map2.put("pageSize",pageSize);
+        Map<String, Object> map = new HashMap<>();
+        map.put("name",name);
+        map.put("owner",owner);
+        map.put("startDate",startDate);
+        map.put("endDate",endDate);
+        map.put("beginNo",(pageNo - 1)*pageSize);
+        map.put("pageSize",pageSize);
 
         //调用service查询数据库
-        List<Activity> retList = activityService.queryActivityByConditionForPage(map1);
-        int totalCount = activityService.queryCountOfActivityByCondition(map2);
+        List<Activity> retList = activityService.queryActivityByConditionForPage(map);
+        int totalCount = activityService.queryCountOfActivityByCondition(map);
 
         //封装查询结果
         Map<String, Object> retMap = new HashMap<>();

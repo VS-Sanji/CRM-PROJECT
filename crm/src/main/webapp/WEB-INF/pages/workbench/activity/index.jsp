@@ -13,6 +13,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 <script type="text/javascript" src="jquery/jquery-1.11.1-min.js"></script>
 <script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
+<%--引入datetimepicker插件--%>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
 
@@ -21,220 +22,226 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <link rel="stylesheet" type="text/css" href="jquery/bs_pagination-master/css/jquery.bs_pagination.min.css">
 <script type="text/javascript" src="jquery/bs_pagination-master/localization/en.min.js"></script>
 
-<script type="text/javascript">
-	$(function(){
+	<script type="text/javascript">
+		$(function (){
 
-		/*给创建按钮添加单击事件*/
-		$("#createActivityBtn").click(function (){
+			//给 创建 按钮增加单击事件
+			$("#createActivityBtn").click(function (){
 
-			/*使用js代码弹出模态窗口，可以在弹出之前做一些初始化工作*/
-			//再次打开，重置表单
-			$("#createActivityForm").get(0).reset();
+				/*使用js代码弹出模态窗口，可以在弹出之前做一些初始化工作*/
+				//再次打开，重置表单
+				$("#createActivityForm").get(0).reset();
 
-			/*弹出创建市场活动的模态窗口*/
-			$("#createActivityModal").modal("show");
-		})
+				/*弹出创建市场活动的模态窗口*/
+				$("#createActivityModal").modal("show");
+			})
 
 
-		//给保存按钮加单击事件
-		$("#saveCreateActivityBtn").click(function (){
-			//收集参数
-			var owner = $("#create-marketActivityOwner").val();
-			var name = $.trim($("#create-marketActivityName").val());
-			var startDate = $("#create-startTime").val();
-			var endDate = $("#create-endTime").val();
-			var cost = $.trim($("#create-cost").val());
-			var description = $.trim($("#create-describe"));
+			//给保存按钮加单击事件
+			$("#saveCreateActivityBtn").click(function (){
+				//收集参数
+				var owner = $("#create-marketActivityOwner").val();
+				var name = $.trim($("#create-marketActivityName").val());
+				var startDate = $("#create-startTime").val();
+				var endDate = $("#create-endTime").val();
+				var cost = $.trim($("#create-cost").val());
+				var description = $.trim($("#create-describe"));
 
-			//表单验证
-			if (owner==""){
-				alert("所有者不能为空");
-				return;
-			}
-			if (name==""){
-				alert("名称不能为空")
-				return;
-			}
-			if (startDate!=""&&endDate!=""){
-				//js是弱类型语言，直接可用<,>,==,!=等来判断大小关系
-				//这里直接用字符串来比，比较每个字符
-				if (startDate>endDate){
-					alert("起始时间不能晚于结束时间")
+				//表单验证
+				if (owner==""){
+					alert("所有者不能为空");
 					return;
 				}
-			}
-
-			/*
-            正则表达式
-            1.语言，语法：定义字符串的匹配模式，可以用来判断指定的具体字符串是否符合匹配模式
-            2.语法通则：
-				1）//：在js中定义一个正则表达式 var regExp=/......./;
-				2)^:匹配字符串的开头位置
-            	  $:匹配字符串的结尾
-            	3）[]:匹配指定字符集中的一位字符。 var regExp=/^[abc]$/;
-            								  var regExp=/^[a-z0-9]$/;
-            	4){}：匹配次数。 var regExp=/^[abc]{5}$/;
-				  {m}:匹配m次
-		          {m，n}：匹配m次到n次
-				  {m，}：匹配m次或者更多次
-				5）特殊符号：
-					\d:匹配一位数字，相当于[0-9]
-					\D:匹配一位非数字
-					\w:匹配所有字符，包括字母，数字，下划线
-					\W：匹配非字符，除了字母，数字，下划线之外的字符
-
-					*：匹配0次或者多次，相当于{0，}
-					+：匹配一次或者多次，相当于{1，}
-					？：匹配0次或者1次，相当于{0，1}
-					*/
-
-			var  regExp = /^(([1-9]\d*)|0)$/;
-			if (!regExp.test(cost)){
-				alert("成本只能为未非负数");
-				return;
-			}
-
-			//发送请求
-			$.ajax({
-				url:'workbench/activity/saveCreateActivity.do',
-				data:{
-					owner:owner,
-					name:name,
-					startDate:startDate,
-					endDate:endDate,
-					cost:cost,
-					description:description
-				},
-				type:'post',
-				dataType:'json',
-				success:function (data){
-					if (data.code=="1"){
-						//关闭模态窗口
-						$("#createActivityModal").modal("hide");
-						//刷新市场活动列，显示第一页数据，保持每页显示条数不变（保留）
-
-					}else {
-						//提示信息
-						alert(data.message);
-						//模态窗口不关闭
-						$("#createActivityModal").modal("show");//可以不写
+				if (name==""){
+					alert("名称不能为空")
+					return;
+				}
+				if (startDate!=""&&endDate!=""){
+					//js是弱类型语言，直接可用<,>,==,!=等来判断大小关系
+					//这里直接用字符串来比，比较每个字符
+					if (startDate>endDate){
+						alert("起始时间不能晚于结束时间")
+						return;
 					}
 				}
+
+				/*
+                正则表达式
+                1.语言，语法：定义字符串的匹配模式，可以用来判断指定的具体字符串是否符合匹配模式
+                2.语法通则：
+                    1）//：在js中定义一个正则表达式 var regExp=/......./;
+                    2)^:匹配字符串的开头位置
+                      $:匹配字符串的结尾
+                    3）[]:匹配指定字符集中的一位字符。 var regExp=/^[abc]$/;
+                                                  var regExp=/^[a-z0-9]$/;
+                    4){}：匹配次数。 var regExp=/^[abc]{5}$/;
+                      {m}:匹配m次
+                      {m，n}：匹配m次到n次
+                      {m，}：匹配m次或者更多次
+                    5）特殊符号：
+                        \d:匹配一位数字，相当于[0-9]
+                        \D:匹配一位非数字
+                        \w:匹配所有字符，包括字母，数字，下划线
+                        \W：匹配非字符，除了字母，数字，下划线之外的字符
+
+                        *：匹配0次或者多次，相当于{0，}
+                        +：匹配一次或者多次，相当于{1，}
+                        ？：匹配0次或者1次，相当于{0，1}
+                        */
+
+				var  regExp = /^(([1-9]\d*)|0)$/;
+				if (!regExp.test(cost)){
+					alert("成本只能为未非负数");
+					return;
+				}
+
+				//发送请求
+				$.ajax({
+					url:'workbench/activity/saveCreateActivity.do',
+					data:{
+						owner:owner,
+						name:name,
+						startDate:startDate,
+						endDate:endDate,
+						cost:cost,
+						description:description
+					},
+					type:'post',
+					dataType:'json',
+					success:function (data){
+						if (data.code=="1"){
+							//关闭模态窗口
+							$("#createActivityModal").modal("hide");
+							//刷新市场活动列，显示第一页数据，保持每页显示条数不变（保留）
+							queryActivityByConditionForPage(1,$("#pagination").bs_pagination('getOption','rowsPerPage'));
+						}else {
+							//提示信息
+							alert(data.message);
+							//模态窗口不关闭
+							$("#createActivityModal").modal("show");//可以不写
+						}
+					}
+				})
 			})
-		})
 
-		//打开市场活动页面即查一次数据,按需求给定初始参数
-		queryActivityByConditionForPage(1,10);
-
-		//输入条件后，点击查询按钮，查询符合条件的第一页的数据及总条数
-		$("#queryActivityBtn").click(function(){
+			//打开市场活动页面即查一次数据,按需求给定初始参数
 			queryActivityByConditionForPage(1,10);
-		})
 
-
-		/**
-		 * 封装成一个函数
-		 * @param pageNo 用户选择的页号
-		 * @param pageSize 每页显示条数
-		 */
-		function queryActivityByConditionForPage(pageNo,pageSize){
-			//当市场活动主页面加载完成，查询所有数据的第一页以及所有数据的总条数，默认每页显示10条
-			/*获取参数，发送异步请求，实现整个页面刷新完成即查出市场活动*/
-			var name = $("#query-name").val();
-			var owner = $("#query-owner").val();
-			var startDate = $("#query-startDate").val();
-			var endDate = $("#query-endDate").val();
-/*			var pageNo = 1;
-			var pageSize = 10;*/
-			//发请求
-			$.ajax({
-				url:'workbench/activity/queryActivityByConditionForPage.do',
-				data:{
-					name:name,
-					owner:owner,
-					startDate:startDate,
-					endDate:endDate,
-					pageNo:pageNo,
-					pageSize:pageSize
-				},
-				type:'post',
-				dataType:'json',
-				success:function (data){
-					//显示总条数
-					//$("#totalCountB").text(data.totalCount); 不用自己写了，插件中有
-
-					//在此调用插件，因为此时已经成功的从后台获取到市场活动数据信息了，在其它位置不合适，不方便拿到后台返回的数据
-					//拿到容器对象，调用bs_pagination()方法
-					//计算总页数,使用js系统函数取整,parseInt(),获取小数的整数部分
-					var totalPagesNum = parseInt(data.totalCount / pageSize);
-					$("#pagination").bs_pagination({
-						currentPage:pageNo,  //当前页号，相当于之前用的pageNo，用户选的
-
-						//这三个数据必须保持数学关系统一
-						rowsPerPage:pageSize, //每页显示条数，相当于pageSize，用户选的
-						totalPages:totalPagesNum, //总页数，必填参数，计算出来的
-						totalRows:data.totalCount, //总条数，数据库中查出来的
-
-						visiblePageLinks:5, //最多可以显示的卡片数
-						showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true
-						showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true
-						showRowsInfo:false,  //是否显示记录的信息，默认是true
-
-						//可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize
-						//event:切换事件本身,用的不多
-						//pageObj:换页之后的翻页对象，封装了换页后的信息，包括pageNo，pageSize，、、、等等信息
-						/*
-						pageObj对象，各种信息
-						{
-						currentPage:1,  //当前页号，相当于之前用的pageNo，用户选的
-
-						//这三个数据必须保持数学关系统一
-						rowsPerPage:10, //每页显示条数，相当于pageSize，用户选的
-						totalPages:100, //总页数，必填参数，计算出来的
-						totalRows:1000, //总条数，数据库中查出来的
-
-						visiblePageLinks:5, //最多可以显示的卡片数
-						showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true
-						showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true
-						showRowsInfo:false,  //是否显示记录的信息，默认是true
-
-						//可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize
-						//event:切换事件本身,用的不多
-						//pageObj:翻页对象，即封装了各种翻页信息的对象，其中有pageNo，pageSize，、、、等等信息
-						onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
-							//js代码
-							alert("zhanhuinimasile")
-						}
-					}
-						 */
-						onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
-							//js代码
-							queryActivityByConditionForPage(pageObj.pageNo,pageObj.pageSize);
-						}
-					});
-
-					//显示第一页的市场活动信息
-					//遍历数据，拼接字符串，将字符串放到tbody中
-					//定义空字符串
-					var htmlStr = "";
-					$.each(data.retList,function (index,obj){
-						htmlStr += "<tr class=\"active\">"
-						htmlStr += "<td><input type=\"checkbox\" value='"+obj.id+"'/></td>"
-						htmlStr += "<td><a style=\"text-decoration: none; cursor: pointer;\" onclick=\"window.location.href='detail.html';\">"+obj.name+"</a></td>"
-						htmlStr += "<td>"+obj.owner+"</td>"
-						htmlStr += "<td>"+obj.startDate+"</td>"
-						htmlStr += "<td>"+obj.endDate+"</td>"
-								</tr>
-					})
-
-					$("#activityBody").html(htmlStr);
-				}
-
+			//输入条件后，点击查询按钮，查询符合条件的第一页的数据及总条数
+			$("#queryActivityBtn").click(function(){
+				queryActivityByConditionForPage(1,$("#pagination").bs_pagination('getOption','rowsPerPage'));
 			})
-		}
 
-	});
-</script>
+
+			/**
+			 * 封装成一个函数
+			 * @param pageNo 用户选择的页号
+			 * @param pageSize 每页显示条数
+			 */
+			function queryActivityByConditionForPage(pageNo,pageSize){
+				//当市场活动主页面加载完成，查询所有数据的第一页以及所有数据的总条数，默认每页显示10条
+				/*获取参数，发送异步请求，实现整个页面刷新完成即查出市场活动*/
+				var name = $("#query-name").val();
+				var owner = $("#query-owner").val();
+				var startDate = $("#query-startDate").val();
+				var endDate = $("#query-endDate").val();
+				/*			var pageNo = 1;
+                            var pageSize = 10;*/
+				//发请求
+				$.ajax({
+					url:'workbench/activity/queryActivityByConditionForPage.do',
+					data:{
+						name:name,
+						owner:owner,
+						startDate:startDate,
+						endDate:endDate,
+						pageNo:pageNo,
+						pageSize:pageSize
+					},
+					type:'post',
+					dataType:'json',
+					success:function (data){
+						//显示总条数
+						//$("#totalCountB").text(data.totalCount); 不用自己写了，插件中有
+						//显示第一页的市场活动信息
+						//遍历数据，拼接字符串，将字符串放到tbody中
+						//定义空字符串
+						var htmlStr = "";
+						$.each(data.retList,function (index,obj){
+							htmlStr+="<tr class=\"active\">";
+							htmlStr+="<td><input type=\"checkbox\" value=\""+obj.id+"\"/></td>";
+							htmlStr+="<td><a style=\"text-decoration: none; cursor: pointer;\" onclick=\"window.location.href='detail.html';\">"+obj.name+"</a></td>";
+							htmlStr+="<td>"+obj.owner+"</td>";
+							htmlStr+="<td>"+obj.startDate+"</td>";
+							htmlStr+="<td>"+obj.endDate+"</td>";
+							htmlStr+="</tr>";
+						})
+
+						$("#activityBody").html(htmlStr);
+
+						//在此调用插件，因为此时已经成功的从后台获取到市场活动数据信息了，在其它位置不合适，不方便拿到后台返回的数据
+						//拿到容器对象，调用bs_pagination()方法
+						//计算总页数,使用js系统函数取整,parseInt(),获取小数的整数部分
+						var totalPages=1;
+						if(data.totalCount%pageSize==0){
+							totalPages=data.totalCount/pageSize;
+						}else{
+							totalPages=parseInt(data.totalCount/pageSize)+1;
+						}
+						$("#pagination").bs_pagination({
+							currentPage:pageNo,  //当前页号，相当于之前用的pageNo，用户选的
+
+							//这三个数据必须保持数学关系统一
+							rowsPerPage:pageSize, //每页显示条数，相当于pageSize，用户选的
+							totalPages:totalPages, //总页数，必填参数，计算出来的
+							totalRows:data.totalCount, //总条数，数据库中查出来的
+
+							visiblePageLinks:5, //最多可以显示的卡片数
+							showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true
+							showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true
+							showRowsInfo:false,  //是否显示记录的信息，默认是true
+
+							//可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize
+							//event:切换事件本身,用的不多
+							//pageObj:换页之后的翻页对象，封装了换页后的信息，包括pageNo，pageSize，、、、等等信息
+							/*
+                            pageObj对象，各种信息
+                            {
+                            currentPage:1,  //当前页号，相当于之前用的pageNo，用户选的
+
+                            //这三个数据必须保持数学关系统一
+                            rowsPerPage:10, //每页显示条数，相当于pageSize，用户选的
+                            totalPages:100, //总页数，必填参数，计算出来的
+                            totalRows:1000, //总条数，数据库中查出来的
+
+                            visiblePageLinks:5, //最多可以显示的卡片数
+                            showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true
+                            showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true
+                            showRowsInfo:false,  //是否显示记录的信息，默认是true
+
+                            //可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize
+                            //event:切换事件本身,用的不多
+                            //pageObj:翻页对象，即封装了各种翻页信息的对象，其中有pageNo，pageSize，、、、等等信息
+                            onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
+                                //js代码
+                                alert("zhanhuinimasile")
+                            }
+                        }
+                             */
+							onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
+								//js代码
+								queryActivityByConditionForPage(pageObj.pageNo,pageObj.pageSize);
+							}
+						});
+
+
+					}
+
+				})
+			}
+		})
+	</script>
+
 
 <%--日历--%>
 <script type="text/javascript">
@@ -264,55 +271,55 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 </script>
 
 <%--分页--%>
-<script type="text/javascript">
-	$(function (){
-		$("#page").bs_pagination({
-			currentPage:1,  //当前页号，相当于之前用的pageNo，用户选的
+<%--<script type="text/javascript">--%>
+<%--	$(function (){--%>
+<%--		$("#page").bs_pagination({--%>
+<%--			currentPage:1,  //当前页号，相当于之前用的pageNo，用户选的--%>
 
-			//这三个数据必须保持数学关系统一
-			rowsPerPage:10, //每页显示条数，相当于pageSize，用户选的
-			totalPages:100, //总页数，必填参数，计算出来的
-			totalRows:1000, //总条数，数据库中查出来的
+<%--			//这三个数据必须保持数学关系统一--%>
+<%--			rowsPerPage:10, //每页显示条数，相当于pageSize，用户选的--%>
+<%--			totalPages:100, //总页数，必填参数，计算出来的--%>
+<%--			totalRows:1000, //总条数，数据库中查出来的--%>
 
-			visiblePageLinks:5, //最多可以显示的卡片数
-			showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true
-			showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true
-			showRowsInfo:false,  //是否显示记录的信息，默认是true
+<%--			visiblePageLinks:5, //最多可以显示的卡片数--%>
+<%--			showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true--%>
+<%--			showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true--%>
+<%--			showRowsInfo:false,  //是否显示记录的信息，默认是true--%>
 
-			//可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize
-			//event:切换事件本身,用的不多
-			//pageObj:翻页对象，即封装了各种翻页信息的对象，其中有pageNo，pageSize，、、、等等信息
-			/*
-			pageObj对象，各种信息
-			{
-			currentPage:1,  //当前页号，相当于之前用的pageNo，用户选的
+<%--			//可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize--%>
+<%--			//event:切换事件本身,用的不多--%>
+<%--			//pageObj:翻页对象，即封装了各种翻页信息的对象，其中有pageNo，pageSize，、、、等等信息--%>
+<%--			/*--%>
+<%--			pageObj对象，各种信息--%>
+<%--			{--%>
+<%--			currentPage:1,  //当前页号，相当于之前用的pageNo，用户选的--%>
 
-			//这三个数据必须保持数学关系统一
-			rowsPerPage:10, //每页显示条数，相当于pageSize，用户选的
-			totalPages:100, //总页数，必填参数，计算出来的
-			totalRows:1000, //总条数，数据库中查出来的
+<%--			//这三个数据必须保持数学关系统一--%>
+<%--			rowsPerPage:10, //每页显示条数，相当于pageSize，用户选的--%>
+<%--			totalPages:100, //总页数，必填参数，计算出来的--%>
+<%--			totalRows:1000, //总条数，数据库中查出来的--%>
 
-			visiblePageLinks:5, //最多可以显示的卡片数
-			showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true
-			showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true
-			showRowsInfo:false,  //是否显示记录的信息，默认是true
+<%--			visiblePageLinks:5, //最多可以显示的卡片数--%>
+<%--			showGoToPage:true,  //控制是否显示 ”跳转到第几页“，默认是true--%>
+<%--			showRowsPerPage:true, //是否显示 ”每页显示条数“ 部分，默认true--%>
+<%--			showRowsInfo:false,  //是否显示记录的信息，默认是true--%>
 
-			//可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize
-			//event:切换事件本身,用的不多
-			//pageObj:翻页对象，即封装了各种翻页信息的对象，其中有pageNo，pageSize，、、、等等信息
-			onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
-				//js代码
-				alert("zhanhuinimasile")
-			}
-		}
-			 */
-			onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
-				//js代码
-				alert("zhanhuinimasile")
-			}
-		});
-	});
-</script>
+<%--			//可以在此获取一些切换信息，如每次返回切换页号之后的pageNo和pageSize--%>
+<%--			//event:切换事件本身,用的不多--%>
+<%--			//pageObj:翻页对象，即封装了各种翻页信息的对象，其中有pageNo，pageSize，、、、等等信息--%>
+<%--			onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数--%>
+<%--				//js代码--%>
+<%--				alert("zhanhuinimasile")--%>
+<%--			}--%>
+<%--		}--%>
+<%--			 */--%>
+<%--			onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数--%>
+<%--				//js代码--%>
+<%--				alert("zhanhuinimasile")--%>
+<%--			}--%>
+<%--		});--%>
+<%--	});--%>
+<%--</script>--%>
 
 </head>
 
@@ -533,7 +540,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			</div>
 			<div class="btn-toolbar" role="toolbar" style="background-color: #F7F7F7; height: 50px; position: relative;top: 5px;">
 				<div class="btn-group" style="position: relative; top: 18%;">
-				  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createActivityModal"><span class="glyphicon glyphicon-plus"></span> 创建</button>
+				  <button type="button" class="btn btn-primary" id="createActivityBtn"><span class="glyphicon glyphicon-plus"></span> 创建</button>
 				  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editActivityModal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
 				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
@@ -555,20 +562,20 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						</tr>
 					</thead>
 					<tbody id="activityBody">
-<%--						<tr class="active">--%>
-<%--							<td><input type="checkbox" /></td>--%>
-<%--							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>--%>
-<%--                            <td>zhangsan</td>--%>
-<%--							<td>2020-10-10</td>--%>
-<%--							<td>2020-10-20</td>--%>
-<%--						</tr>--%>
-<%--                        <tr class="active">--%>
-<%--                            <td><input type="checkbox" /></td>--%>
-<%--                            <td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>--%>
-<%--                            <td>zhangsan</td>--%>
-<%--                            <td>2020-10-10</td>--%>
-<%--                            <td>2020-10-20</td>--%>
-                        </tr>
+<%--						<tr class="active">
+							<td><input type="checkbox" /></td>
+							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>
+                            <td>zhangsan</td>
+							<td>2020-10-10</td>
+							<td>2020-10-20</td>
+						</tr>
+                        <tr class="active">
+                            <td><input type="checkbox" /></td>
+                            <td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.html';">发传单</a></td>
+                            <td>zhangsan</td>
+                            <td>2020-10-10</td>
+                            <td>2020-10-20</td>
+                        </tr>--%>
 					</tbody>
 				</table>
 				<%--创建分页插件的容器--%>
