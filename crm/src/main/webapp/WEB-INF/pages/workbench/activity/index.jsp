@@ -179,6 +179,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 						$("#activityBody").html(htmlStr);
 
+						//每次查了之后，清除全选按钮
+						$("#checkAll").prop("checked",false);
+
 						//在此调用插件，因为此时已经成功的从后台获取到市场活动数据信息了，在其它位置不合适，不方便拿到后台返回的数据
 						//拿到容器对象，调用bs_pagination()方法
 						//计算总页数,使用js系统函数取整,parseInt(),获取小数的整数部分
@@ -230,15 +233,64 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
                              */
 							onChangePage:function (event,pageObj){//当用户每次切换页号的时候都会执行这个函数
 								//js代码
-								queryActivityByConditionForPage(pageObj.pageNo,pageObj.pageSize);
+								queryActivityByConditionForPage(pageObj.currentPage,pageObj.rowsPerPage);
 							}
-						});
+						})
 
 
 					}
 
 				})
 			}
+
+			//给全选框增加单击事件
+			$("#checkAll").click(function (){
+				$("#activityBody input[type='checkbox']").prop('checked',this.checked);
+			})
+
+			//给列表中的checkbox添加单击事件,用这种方式能够给动态生成的dom加事件
+			$("#activityBody").on("click","input[type='checkbox']",function (){
+				//如果列表中所有checkbox都选中，那么全选按钮也选中
+				if ($("#activityBody input[type='checkbox']").size()==$("#activityBody input[type='checkbox']:checked").size()){
+					$("#checkAll").prop("checked",true);
+				}else {
+					$("#checkAll").prop("checked",false);
+				}
+			})
+
+			//给删除按钮添加单击事件
+			$("#deleteActivityBtn").click(function (){
+				//收集参数
+				//封装参数
+				var checkedIdS = $("#activityBody input[type='checkbox']:checked");
+				if (checkedIdS.size()==0){
+					alert("请选择要删除的市场活动")
+					return;
+				}
+				if (window.confirm("确定删除吗？")){
+					var ids = "";
+					$.each(checkedIdS,function (){
+						ids += "id=" + this.value + "&";
+					})
+					ids = ids.substr(0,ids.length - 1);
+					$.ajax({
+						url:"workbench/activity/deleteActivityByIds.do",
+						data:ids,
+						type:'post',
+						dataType:'json',
+						success:function (data){
+							if (data.code == 1){
+								queryActivityByConditionForPage(1,$("#pagination").bs_pagination('getOption','rowsPerPage'));
+							}else {
+								alert(data.message);
+							}
+						}
+					})
+				}
+
+			})
+
+
 		})
 	</script>
 
@@ -542,7 +594,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="btn-group" style="position: relative; top: 18%;">
 				  <button type="button" class="btn btn-primary" id="createActivityBtn"><span class="glyphicon glyphicon-plus"></span> 创建</button>
 				  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editActivityModal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
-				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+				  <button type="button" class="btn btn-danger" id="deleteActivityBtn"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
 				<div class="btn-group" style="position: relative; top: 18%;">
                     <button type="button" class="btn btn-default" data-toggle="modal" data-target="#importActivityModal" ><span class="glyphicon glyphicon-import"></span> 上传列表数据（导入）</button>
@@ -554,7 +606,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<table class="table table-hover">
 					<thead>
 						<tr style="color: #B3B3B3;">
-							<td><input type="checkbox" /></td>
+							<td><input type="checkbox" id="checkAll"/></td>
 							<td>名称</td>
                             <td>所有者</td>
 							<td>开始日期</td>

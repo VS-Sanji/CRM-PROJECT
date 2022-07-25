@@ -30,4 +30,11 @@ public interface ActivityService {
      * @return
      */
     int queryCountOfActivityByCondition(Map<String, Object> map);
+
+    /**
+     * 根据id批量删除市场活动
+     * @param ids
+     * @return
+     */
+    int deleteActivityByIds(String[] ids);
 }

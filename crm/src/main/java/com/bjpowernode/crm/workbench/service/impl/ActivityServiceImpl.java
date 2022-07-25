@@ -31,4 +31,15 @@ public class ActivityServiceImpl implements ActivityService {
     public int queryCountOfActivityByCondition(Map<String, Object> map) {
         return activityMapper.selectCountOfActivityByCondition(map);
     }
+
+    /**
+     * 根据id批量删除市场活动
+     *
+     * @param ids
+     * @return
+     */
+    @Override
+    public int deleteActivityByIds(String[] ids) {
+        return activityMapper.deleteActivityByIds(ids);
+    }
 }
