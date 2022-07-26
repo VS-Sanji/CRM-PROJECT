@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class ActivityController {
@@ -37,6 +34,7 @@ public class ActivityController {
         return "workbench/activity/index";
     }
 
+    //保存创建的市场活动
     @RequestMapping("/workbench/activity/saveCreateActivity.do")
     @ResponseBody
     public Object saveCreateActivity(HttpSession session, Activity activity){
@@ -73,6 +71,7 @@ public class ActivityController {
         return returnObject;
     }
 
+    //根据条件分页查询市场活动
     @RequestMapping("/workbench/activity/queryActivityByConditionForPage.do")
     @ResponseBody
     public Object queryActivityByConditionForPage(String name, String owner, String startDate, String endDate,
@@ -99,6 +98,7 @@ public class ActivityController {
         return retMap;
     }
 
+    //根据id们删除市场活动
     @RequestMapping("/workbench/activity/deleteActivityByIds.do")
     @ResponseBody
     public Object deleteActivityByIds(String[] id){
@@ -120,4 +120,48 @@ public class ActivityController {
         }
         return returnObject;
     }
+
+    //根据id查询市场活动
+    @RequestMapping("/workbench/activity/queryActivityById.do")
+    @ResponseBody
+    public Object queryActivityById(String id){
+        //调用service
+        Activity activity = activityService.queryActivityById(id);
+        //返回查询结果
+        return activity;
+    }
+
+    //保存修改的市场活动
+    @RequestMapping("/workbench/activity/saveEditActivity.do")
+    @ResponseBody
+    public Object saveEditActivity(Activity activity, HttpSession session){
+        //封装参数，根据sql语句需求进行封装
+        //获取修改时间，修改人
+        User user =(User) session.getAttribute(Contants.SESSION_USER);
+        String dateTime = DateUtils.formatDateTime(new Date());
+        activity.setEditBy(user.getId());
+        activity.setEditTime(dateTime);
+
+        ReturnObject returnObject = new ReturnObject();
+        //调用service
+        try {
+            int i = activityService.saveEditActivity(activity);
+
+            if (i == 0){
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_FAIL);
+                returnObject.setMessage("系统忙，请稍后重试...");
+                return returnObject;
+            }else if (i == 1){
+                returnObject.setCode(Contants.RETURN_OBJECT_CODE_SUCCESS);
+                return returnObject;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            returnObject.setCode(Contants.RETURN_OBJECT_CODE_FAIL);
+            returnObject.setMessage("系统忙，请稍后重试...");
+            return returnObject;
+        }
+        return returnObject;
+    }
+
 }

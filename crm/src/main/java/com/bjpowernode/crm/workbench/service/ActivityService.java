@@ -37,4 +37,18 @@ public interface ActivityService {
      * @return
      */
     int deleteActivityByIds(String[] ids);
+
+    /**
+     * 根据id查询市场活动信息
+     * @param id
+     * @return
+     */
+    Activity queryActivityById(String id);
+
+    /**
+     * 保存修改的市场活动
+     * @param activity
+     * @return
+     */
+    int saveEditActivity(Activity activity);
 }
