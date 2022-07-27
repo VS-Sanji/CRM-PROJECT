@@ -367,6 +367,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				})
 			})
 
+			//批量导出市场活动，添加一个单击事件
+			$("#exportActivityAllBtn").click(function(){
+				window.location.href="workbench/activity/exportAllActivitys.do";
+			})
+
 		})
 	</script>
 

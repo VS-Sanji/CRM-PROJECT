@@ -95,4 +95,10 @@ public interface ActivityMapper {
      * @return
      */
     int updateActivity(Activity activity);
+
+    /**
+     * 查询所有的市场活动
+     * @return
+     */
+    List<Activity> selectAllActivitys();
 }
