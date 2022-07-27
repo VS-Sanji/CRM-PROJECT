@@ -9,13 +9,20 @@ import com.bjpowernode.crm.settings.service.UserService;
 import com.bjpowernode.crm.workbench.domain.Activity;
 import com.bjpowernode.crm.workbench.service.ActivityService;
 import com.sun.corba.se.impl.oa.toa.TOA;
+import com.sun.deploy.net.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 
 @Controller
@@ -162,6 +169,32 @@ public class ActivityController {
             return returnObject;
         }
         return returnObject;
+    }
+
+    //演示文件下载
+    @RequestMapping("/workbench/activity/fileDownload.do")
+    public void fileDownload(HttpServletResponse response) throws IOException {
+        //1.设置响应类型
+        response.setContentType("application/octet-stream;charset=UTF-8");
+        //2.获取输出流
+        OutputStream os = response.getOutputStream();
+
+        //浏览器接收到响应信息后，默认情况下，直接在显示窗口中打开响应信息；即使打不开，也会调用应用程序打开；只有实在打不开，才会激活文件下载
+        //可以设置响应头信息，使浏览器接收到响应信息之后，直接激活文件下载窗口，即使能打开也不打开
+        response.addHeader("Content-Disposition","attachment;filename=student.xls");
+
+        //读取excel文件(InputStream),读到内存中，再通过OutputStream往外输出
+        FileInputStream fileInputStream = new FileInputStream("C:\\Dev\\crm\\crm-ziliao\\excel\\studentExcel.xls");
+        byte[] buff = new byte[256];
+        int len = 0;
+        while ((len = fileInputStream.read(buff)) != -1){
+            os.write(buff,0,len);
+        }
+
+        //3.关闭资源
+        //os.close(); 这是用response获取的流，由tomcat管理，不用我们自己手动关闭
+        fileInputStream.close();
+        os.flush();//输出流冲刷
     }
 
 }
