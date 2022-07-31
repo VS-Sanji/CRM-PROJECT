@@ -50,7 +50,6 @@ public class CreateExcelTest {
         //调用工具函数生成excel文件
         FileOutputStream out = new FileOutputStream("C:\\Dev\\crm\\crm-ziliao\\excel\\studentExcel.xls");//这里的目录必须是要事先存在的，不然会报io异常，文件名不存在的话会自动生成
         wb.write(out);
-
         //关闭资源,自己new的要手动关，不关占用资源，不是自己new的不用管，谁提供谁管
         out.close();
         wb.close();
